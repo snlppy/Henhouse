@@ -1,4 +1,12 @@
 
+Checking_system_status()
+{
+	#check if the system is running automatic updates and thus apt is busy
+	#https://itsfoss.com/could-not-get-lock-error/
+	#ps aux | grep -i apt
+}
+
+
 #requirements
 installing()
 {
@@ -7,7 +15,7 @@ installing()
 	sudo apt-get install libjpeg-dev zlib1g-dev swig -y
 	
 	#TODO: avaliable in ubuntu 18.04 but not in ubuntu 20.04
-	sudo apt-get install python-virtualenv python-setuptools
+	sudo apt-get install python-virtualenv python-setuptools -y
 
 	#needed in ubuntu 20.04
 	#TODO: review
@@ -17,6 +25,7 @@ installing()
 	wget https://bootstrap.pypa.io/get-pip.py --no-check-certificate
 	#TODO: add check for 404 error
 	sudo python2 get-pip.py
+	sudo rm get-pip.py
 
 	#installing Databases
 	echo installing databases
@@ -53,7 +62,7 @@ installing()
 
 	getcap /usr/sbin/tcpdump
 
-	sudo apt-get install libcap2-bin
+	sudo apt-get install libcap2-bin -y
 	sudo chmod +s /usr/sbin/tcpdump
 
 	#TODO: Install volatility
@@ -142,8 +151,10 @@ installing()
 	#sudo ldconfig
 	#sudo /etc/init.d/guacd start
 	cd ~
+	sudo rm guacamole-server-1.1.0.tar.gz
+	sudo rm -r guacamole-server-1.1.0
 
-
+	#installing cuckoo
 	echo installing cuckoo
 	sudo adduser cuckoo
 	sudo usermod -a -G vboxusers cuckoo
@@ -161,7 +172,18 @@ installing()
 
 	echo running cuckoo for first time
 
-	cuckoo -d	
+	cuckoo -d
+	
+	#installing vagrant
+	sudo apt-get install vagrant -y
+	wget -c https://releases.hashicorp.com/vagrant/2.0.3/vagrant_2.0.3_x86_64.deb
+    sudo dpkg -i vagrant_2.0.3_x86_64.deb
+	
+	#vagrant plugin install vagrant-windows
+	
+	sudo apt-get install mongodb -y
+	
+	sudo apt-get install vagrant -y
 }
 Checking(){
 	echo checking packages
@@ -174,11 +196,8 @@ Checking(){
 	"libvncserver-dev" "libtelnet-dev" "libssl-dev" "libvorbis-dev"
 	"libwebp-dev" "tomcat9" "tomcat9-admin" "tomcat9-common" 
 	"tomcat9-user" "libcairo2-dev" "libjpeg-turbo8-dev" "libpng-dev" 
-	"libossp-uuid-dev" "libfreerdp-dev"	
+	"libossp-uuid-dev" "libfreerdp-dev" "mongodb" "vagrant"
 	)
-	
-	
-	
 	
 	#
 	for val in ${list[*]}; do
@@ -228,6 +247,7 @@ Checking(){
 		echo -e "guacamole \033[0;31minactive\033[0m"
 	fi
 }
+
 
 installing
 Checking
