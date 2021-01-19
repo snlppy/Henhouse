@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
   config.winrm.retry_limit = 20
 
   #config.vm.provision "file", source: "python/python27", destination:"/"
-  config.vm.provision "file", source: "python/agent.py", destination:"C:\\Users\\vagrant\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+  config.vm.provision "file", source: "~/.cuckoo/agent/agent.py", destination:"C:\\Users\\vagrant\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
   config.vm.provision "shell", path: "python/python-2.7.13.msi", privileged: true #todo:check if it needs to be privilaged
   #cfg.vm.provision "shell", path: "python/agent.py", privileged: true #todo:check if it needs to be privilaged
 
