@@ -4,14 +4,14 @@ Vagrant.configure("2") do |config|
   config.vm.box_check_update = false
 
   config.vm.boot_timeout = 600
-  cfg.winrm.transport = :plaintext
-  cfg.vm.communicator = "winrm"
+  config.winrm.transport = :plaintext
+  config.vm.communicator = "winrm"
   config.winrm.basic_auth_only = true
   config.winrm.timeout = 300
   config.winrm.retry_limit = 20
 
   #config.vm.provision "file", source: "python/python27", destination:"/"
-  config.vm.provision "file", source: "python/agent.py", destination:"C:\Users\vagrant\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
+  config.vm.provision "file", source: "python/agent.py", destination:"C:\\Users\\vagrant\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
   config.vm.provision "shell", path: "python/python-2.7.13.msi", privileged: true #todo:check if it needs to be privilaged
   #cfg.vm.provision "shell", path: "python/agent.py", privileged: true #todo:check if it needs to be privilaged
 
