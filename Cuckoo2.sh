@@ -12,15 +12,19 @@ Installing()
 	fi
 	
 	#downlaod python 2.7 installer
-	if [ -f python/python-2.7* ]; then
+	echo python 2.7 intalling
+	if [ -f python/python=2.7* ]; then
 		wget https://www.python.org/ftp/python/2.7.13/python-2.7.13.msi
 		mkdir pyhon
 		mv python-2.7.13.msi python/
 	fi
+	
 	cd ..
+	
 	#TODO: check for hostonlyif
-	#net1=$(vboxmanage list hostonlyifs)
-	if grep -q "192.168.30.1"; then
+	s1=$(vboxmanage list hostonlyifs)
+	echo configuring hostonlyif
+	if [[ $s1 == *"192.168.30.1"* ]]; then
 		s1=$(vboxmanage list hostonlyifs | sed -n '/Name/,/192.168.30.1/p')
 		net1=${s1:6:19}
 		echo net1 already exists
@@ -53,7 +57,7 @@ Installing()
 	#edits config files
 	sed -i '/^\[mongodb\]$/,/^\[/ s/^enabled = no/enabled = yes/' ~/.cuckoo/conf/reporting.conf #enabling the results server
 	
-	sed -i '/^\[resultserver\]$/,/^\[/ s/^ip = .*/ip = 127.0.0.1/' ~/.cuckoo/conf/cuckoo.conf #sets the results server to the loopback address
-	sed -i '/^\[cuckoo1\]$/,/^\[/ s/^ip = .*/ip = 192.168.56.100/' ~/.cuckoo/conf/virtualbox.conf #sets the results server to the loopback address
+	sed -i '/^\[resultserver\]$/,/^\[/ s/^ip = .*/ip = 192.168.30.1/' ~/.cuckoo/conf/cuckoo.conf #sets the results server to the loopback address
+	sed -i '/^\[cuckoo1\]$/,/^\[/ s/^ip = .*/ip = 192.168.30.100/' ~/.cuckoo/conf/virtualbox.conf #sets the results server to the loopback address
 }
 Installing
