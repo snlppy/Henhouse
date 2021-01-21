@@ -20,17 +20,24 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: 'sc.exe stop wuauserv', privileged: true
   #config.vm.provision "shell", inline: '', privileged: true
   #fix network
-  config.vm.provision "shell", inline: 'Remove-NetIPAddress 192.168.30.101 -Confirm:$false', powershell_args: "PowerShell", privileged: true
-  config.vm.provision "shell", inline: "New-NetIPAddress -InterfaceAlias 'Ethernet 2' -IPAddress '192.168.30.101' -PrefixLength 24 -DefaultGateway '192.168.30.100', privileged: true '192.168.30.100'
-  config.vm.provision "shell", inline: 'Set-DnsClientServerAddress -InterfaceAlias 'Ethernet 2' -ServerAddresses 192.168.56.100', privileged: true
+  config.vm.provision "shell", inline: 'Remove-NetIPAddress 192.168.30.100 -Confirm:$false', powershell_args: "PowerShell", privileged: true
+  config.vm.provision "shell", inline: "New-NetIPAddress -InterfaceAlias 'Ethernet 2' -IPAddress '192.168.30.100' -PrefixLength 24 -DefaultGateway '192.168.30.1'", privileged: true
+  config.vm.provision "shell", inline: "Set-DnsClientServerAddress -InterfaceAlias 'Ethernet 2' -ServerAddresses 192.168.30.1", privileged: true
   
-  config.vm.provision "file", source: "~/.cuckoo/agent/agent.py", destination:"C:\\Users\\vagrant\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
   config.vm.provision "shell", path: "python/python-2.7.13.msi", privileged: true #todo:check if it needs to be privilaged
-  
+  config.vm.provision "file", source: "~/.cuckoo/agent/agent.py", destination:"C:\\Users\\vagrant\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\"
+  #install pip
+  config.vm.provision "shell", path: "", privilaged: true
+  #install pillow
+  config.vm.provision "shell", inline: "", privilaged: true
   
   config.vm.provider "virtualbox" do |vb|
       vb.name = "cuckoo1"
 	  #https://superuser.com/questions/846964/how-to-add-a-host-only-adapter-to-a-virtualbox-mac$
       config.vm.network "private_network", :type => 'dhcp', :name => 'vboxnet0', :adapter => 2
+	  vb.cpus = 2
+	  vb.memory = 2048
+	  vb.gui = true
+	  vb.customize ["modifyvm", :id, "--vram", "32"]
   end
 end
