@@ -4,8 +4,8 @@ Checking_system_status()
 	#check if the system is running automatic updates and thus apt is busy
 	#https://itsfoss.com/could-not-get-lock-error/
 	#ps aux | grep -i apt
+	echo hello
 }
-
 
 #requirements
 installing()
@@ -20,12 +20,17 @@ installing()
 	#needed in ubuntu 20.04
 	#TODO: review
 	sudo apt install curl -y
-	echo installing pip
-	#wget https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-	wget https://bootstrap.pypa.io/get-pip.py --no-check-certificate
-	#TODO: add check for 404 error
-	sudo python2 get-pip.py
-	sudo rm get-pip.py
+	
+	if [Check_pip]; then
+		echo Pip is all ready installed
+	else
+		echo installing pip
+		#wget https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+		wget https://bootstrap.pypa.io/get-pip.py --no-check-certificate
+		#TODO: add check for 404 error
+		sudo python2 get-pip.py
+		#sudo rm get-pip.py
+	fi
 
 	#installing Databases
 	echo installing databases
@@ -33,13 +38,24 @@ installing()
 	sudo apt-get install postgresql libpq-dev -y
 
 	#TODO: install pydeep option
-	#		-libfuzy-dev
-
-	#TODO: install mitm for SSL/TLS
+	#mkdir pydeep
+	#cd pydeep
+	#sudo apt install ssdeep
+	#wget https://github.com/kbandla/pydeep/archive/master.zip
+	#unzip master.zip
+	#python setup.py build
+	#python setup.py test
+	#sudo python setup.py install
+		#		-libfuzy-dev
+	#TODO: check if fuzzy is actually requrired
+	#sudo apt install libfussy-dev
+	#cd ..
+	
+	#TODO: install mitm for SSL/TLS. requires python venv to be configured as it uses python 3.6
 	
 	#installing virtualbox
 	echo installing virtualbox
-	#folling code does not work in ubuntu 18.04 {
+	#following code does not work in ubuntu 18.04 {
 	#echo deb http://download.virtualbox.org/virtualbox/debian xenial contrib | sudo tee -a /etc/apt/sources.list.d/virtualbox.list
 	#wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
 	#sudo apt-get update
@@ -89,7 +105,7 @@ installing()
 	tar -xvzf guacamole-server-1.1.0.tar.gz
 	cd guacamole-server-1.1.0
 	./configure --with-init-dir=/etc/init.d
-	#TODO: code dcouldnt find libpulse for VNC and libwebsockets for kubernetes
+	#TODO: code couldnt find libpulse for VNC and libwebsockets for kubernetes
 	#		according to the instructions that is ok
 	make
 	sudo make install
@@ -105,42 +121,47 @@ installing()
 	sudo systemctl restart guacd
 
 	#TODO configure guacd
-	sudo echo "guacd-hostname: localhost" | sudo tee -a /etc/guacamole/guacamole.properties
-	sudo echo "guacd-port:    4822" | sudo tee -a /etc/guacamole/guacamole.properties
-	sudo echo "user-mapping:    /etc/guacamole/user-mapping.xml" | sudo tee -a /etc/guacamole/guacamole.properties
+	if ! grep -q "guacd-hostname: localhost" /etc/guacamole/guacamole.properties; then
+		sudo echo "guacd-hostname: localhost" | sudo tee -a /etc/guacamole/guacamole.properties
+		sudo echo "guacd-port:    4822" | sudo tee -a /etc/guacamole/guacamole.properties
+		sudo echo "user-mapping:    /etc/guacamole/user-mapping.xml" | sudo tee -a /etc/guacamole/guacamole.properties
+	fi
 
 	sudo mkdir /etc/guacamole/{extensions,lib}
-	echo "GUACAMOLE_HOME=/etc/guacamole" | sudo tee -a /etc/default/tomcat9
-	code=$(echo -n yoursecurepassword | openssl md5)
-	code=${code//'(stdin)= '/}
+	
+	if ! grep -q "GUACAMOLE_HOME=/etc/guacamole" /etc/default/tomcat9; then
+		echo "GUACAMOLE_HOME=/etc/guacamole" | sudo tee -a /etc/default/tomcat9
+		code=$(echo -n yoursecurepassword | openssl md5)
+		code=${code//'(stdin)= '/}
+	fi
 
 	#nano /etc/guacamole/user-mapping.xml
 	mkdir /etc/guacamole/
 	touch /etc/guacamole/user-mapping.xml
 	
-	sudo echo "<user-mapping>" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "    <authorize " | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "            username=\"admin\"" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "            password=\"$code\"" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "            encoding=\"md5\">" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "        <connection name=\"Ubuntu20.04-Server\">" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "            <protocol>ssh</protocol>" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "            <param name=\"hostname\">192.168.10.50</param>" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "            <param name=\"port\">22</param>" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "            <param name=\"username\">root</param>" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "        </connection>" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "        <connection name="Windows Server">" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "            <protocol>rdp</protocol>" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "            <param name=\"hostname\">192.168.10.51</param>" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "            <param name=\"port\">3389</param>" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "        </connection>" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "    </authorize>" | sudo tee -a /etc/guacamole/user-mapping.xml
-	sudo echo "</user-mapping>" | sudo tee -a /etc/guacamole/user-mapping.xml
-	
-	sudo systemctl restart tomcat9
-	sudo systemctl restart guacd
-	
+	if ! grep -q "GUACAMOLE_HOME=/etc/guacamole" /etc/guacamole/user-mapping.xml; then
+		sudo echo "<user-mapping>" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "    <authorize " | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "            username=\"admin\"" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "            password=\"$code\"" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "            encoding=\"md5\">" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "        <connection name=\"Ubuntu20.04-Server\">" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "            <protocol>ssh</protocol>" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "            <param name=\"hostname\">192.168.56.102</param>" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "            <param name=\"port\">22</param>" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "            <param name=\"username\">root</param>" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "        </connection>" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "        <connection name="Windows Server">" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "            <protocol>rdp</protocol>" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "            <param name=\"hostname\">192.168.56.100</param>" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "            <param name=\"port\">3389</param>" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "        </connection>" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "    </authorize>" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo echo "</user-mapping>" | sudo tee -a /etc/guacamole/user-mapping.xml
+		sudo systemctl restart tomcat9
+		sudo systemctl restart guacd
+	fi
 	
 	#sudo apt -y install libcairo2-dev libjpeg-turbo8-dev libpng-dev libossp-uuid-dev libfreerdp-dev
 	#mkdir /tmp/guac-build && cd /tmp/guac-build
@@ -240,16 +261,21 @@ Checking(){
 	fi
 	
 	#checking if guacd is running
-	s1="$(systemctl status 2>/dev/null | grep 'Active:')"
+	s1="$(systemctl status guacd.service 2>/dev/null | grep 'Active: active (running)')"
 	if [[ "$s1" == *"active (running)"* ]]; then #spaces next to variables matter
 			echo -e "guacamole \033[0;32mactive (running)\033[0m"
 	else
 		echo -e "guacamole \033[0;31minactive\033[0m"
 	fi
 }
-
+Check_pip{
+	s1="$(pip --version 2>/dev/null | grep 'python 2.7')"
+	if [[ "$s1" == "pip"*"from /usr/local/lib/python2.7/dist-packages/pip (python 2.7)" ]]; then #spaces next to variables matter
+		return 1
+	else
+		return 0
+	fi
+}
 
 installing
 Checking
-
-
