@@ -268,7 +268,7 @@ Checking(){
 		echo -e "guacamole \033[0;31minactive\033[0m"
 	fi
 }
-Check_pip{
+Check_pip(){
 	s1="$(pip --version 2>/dev/null | grep 'python 2.7')"
 	if [[ "$s1" == "pip"*"from /usr/local/lib/python2.7/dist-packages/pip (python 2.7)" ]]; then #spaces next to variables matter
 		return 1
