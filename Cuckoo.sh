@@ -1,16 +1,20 @@
-
+red="\033[0;31m"
+green="\033[0;32m"
+yellow="\033[1;33m"
+blue="\033[0;34m"
+NC="\033[0m"
 Checking_system_status()
 {
 	#check if the system is running automatic updates and thus apt is busy
 	#https://itsfoss.com/could-not-get-lock-error/
 	#ps aux | grep -i apt
-	echo hello
+	echo -e "${red}hello${NC}"
 }
 
 #requirements
 installing()
 {
-	echo installing packages
+	echo -e "${blue}installing packages${NC}"
 	sudo apt-get install python2.7 python2.7-dev libffi-dev libssl-dev -y
 	sudo apt-get install libjpeg-dev zlib1g-dev swig -y
 	
@@ -22,9 +26,9 @@ installing()
 	sudo apt install curl -y
 	
 	if [Check_pip]; then
-		echo Pip is all ready installed
+		echo -e "${yellow}Pip is all ready installed${NC}"
 	else
-		echo installing pip
+		echo -e "${blue}installing pip${NC}"
 		#wget https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 		wget https://bootstrap.pypa.io/get-pip.py --no-check-certificate
 		#TODO: add check for 404 error
@@ -33,7 +37,7 @@ installing()
 	fi
 
 	#installing Databases
-	echo installing databases
+	echo -e "${blue}installing databases${NC}"
 	sudo apt-get install mongodb -y
 	sudo apt-get install postgresql libpq-dev -y
 
@@ -54,7 +58,7 @@ installing()
 	#TODO: install mitm for SSL/TLS. requires python venv to be configured as it uses python 3.6
 	
 	#installing virtualbox
-	echo installing virtualbox
+	echo -e "${blue}installing virtualbox${NC}"
 	#following code does not work in ubuntu 18.04 {
 	#echo deb http://download.virtualbox.org/virtualbox/debian xenial contrib | sudo tee -a /etc/apt/sources.list.d/virtualbox.list
 	#wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
@@ -65,7 +69,7 @@ installing()
 	
 	
 	#installing tcpdump
-	echo installing tcpdump
+	echo -e "${blue}installing tcpdump${NC}"
 	sudo apt-get install tcpdump apparmor-utils -y
 	#sudo setcap cap_net_raw,cap_net_admin=eip /usr/sbin/tcpdump
 	sudo aa-disable /usr/sbin/tcpdump
@@ -84,12 +88,12 @@ installing()
 	#TODO: Install volatility
 	
 	#installing m2crypto
-	echo installing m2crypto
+	echo -e "${blue}installing m2crypto${NC}"
 	sudo apt-get install libssl1.0-dev -y #https://github.com/appknox/m2crypto/issues/1
 	sudo pip install m2crypto==0.24.0
 
 	#installing guacamole and tomcat9
-	echo guacd
+	echo -e "${blue}installing guacd${NC}"
 	#next line does not work
 	#sudo apt install libguac-client-rdp0 libguac-client-vnc0 libguac-client-ssh0 guacd
 
@@ -176,7 +180,7 @@ installing()
 	sudo rm -r guacamole-server-1.1.0
 
 	#installing cuckoo
-	echo installing cuckoo
+	echo -e "${blue}installing cuckoo${NC}"
 	sudo adduser cuckoo
 	sudo usermod -a -G vboxusers cuckoo
 	sudo usermod -a -G libvirtd cuckoo
@@ -191,7 +195,7 @@ installing()
 	#pip install Cuckoo-2.0.0.tar.gz
 	#pip install *.tar.gz
 
-	echo running cuckoo for first time
+	echo -e "${blue}running cuckoo for first time${NC}"
 
 	cuckoo -d
 	
@@ -207,7 +211,7 @@ installing()
 	sudo apt-get install vagrant -y
 }
 Checking(){
-	echo checking packages
+	echo -e "${blue}checking packages${NC}"
 	list=("python2.7" "python2.7-dev" "libffi-dev" 
 	"libssl-dev" "libjpeg-dev" "zlib1g-dev" "swig" "curl" "mongodb" "postgresql"
 	"libpq-dev" "tcpdump" "apparmor-utils" "libcap2-bin"
@@ -231,7 +235,7 @@ Checking(){
 	done
 	
 	#checking for pip
-	echo checking pip
+	echo -e "${blue}checking pip${NC}"
 	s1="$(pip --version 2>/dev/null | grep 'python 2.7')"
 	if [[ "$s1" == "pip"*"from /usr/local/lib/python2.7/dist-packages/pip (python 2.7)" ]]; then #spaces next to variables matter
 			echo -e "pip \033[0;32minstalled\033[0m"
@@ -240,7 +244,7 @@ Checking(){
 	fi
 	
 	#checking pip installed packages
-	echo checking pip installations
+	echo -e "${blue}checking pip installations${NC}"
 	list=("virtualenv" "setuptools" "M2Crypto")
 	for val in ${list[*]}; do
 			s1="$(pip list 2>/dev/null | grep $val)"
@@ -252,7 +256,7 @@ Checking(){
 	done
 	
 	#checking virtualbox version
-	echo checking virtualbox
+	echo -e "${blue}checking virtualbox${NC}"
 	s1="$(dpkg -s virtualbox 2>/dev/null | grep 'Version')"
 	if [[ "$s1" == *"5.2."* ]]; then #spaces next to variables matter
 			echo -e "virtualbox $s1 \033[0;32minstalled\033[0m"
